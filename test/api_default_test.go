@@ -11,23 +11,30 @@ package openapi
 
 import (
 	"context"
+	"log"
+	"testing"
+
+	openapiclient "github.com/Ap2603/sfpy-go"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"testing"
-	openapiclient "github.com/Ap2603/sfpy-go"
 )
 
 func Test_openapi_DefaultAPIService(t *testing.T) {
 
 	configuration := openapiclient.NewConfiguration()
-	apiClient := openapiclient.NewAPIClient(configuration)
+	apiClient := openapiclient.NewAPIClient(configuration).DefaultAPI
 
 	t.Run("Test DefaultAPIService CreateAPIKey", func(t *testing.T) {
 
-		t.Skip("skip test")  // remove to run test
 
-		resp, httpRes, err := apiClient.DefaultAPI.CreateAPIKey(context.Background()).Execute()
+		//This endpoint will return a 400 Bad request as API keys are made at account creation and a new one will not be made if one already exists
+		//t.Skip("skip test")  // remove to run test
+		context := context.WithValue(context.Background(), openapiclient.ContextAccessToken, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjI0Mjk0NTUsImlhdCI6MTcyMjQyNTg1NSwidmVyc2lvbiI6InYxIiwiZW1haWwiOiJ6cGFyZWtoQGdldHNhZmVwYXkuY29tIiwidG9rZW4iOiJjbGllbnRfY2M0ZDZlNWMtMWMzMi00MTZhLTlkNGEtZGQ3NzM1M2U1ZTM3IiwidmVyaWZpZWQiOjEsIm1hc2siOjJ9.NVcOGjb7w5ETLX68HqMLR4wV0abFzFSaRHrnWY4RVEU")
+		resp, httpRes, err := apiClient.CreateAPIKey(context).Execute()
 
+		if err != nil {
+			log.Print(err.Error())
+		}
 		require.Nil(t, err)
 		require.NotNil(t, resp)
 		assert.Equal(t, 200, httpRes.StatusCode)
@@ -36,9 +43,19 @@ func Test_openapi_DefaultAPIService(t *testing.T) {
 
 	t.Run("Test DefaultAPIService CreateGuest", func(t *testing.T) {
 
-		t.Skip("skip test")  // remove to run test
+		//t.Skip("skip test") // remove to run test
 
-		resp, httpRes, err := apiClient.DefaultAPI.CreateGuest(context.Background()).Execute()
+		var firstname = "Hassaan"
+	var lastname = "Zaidi"
+	guestRequest := openapiclient.CreateGuestRequest{
+		Email:     "hzaidi@getsafepay.com",
+		Phone:     "+923001234567",
+		Country:   "PK",
+		FirstName: &firstname,
+		LastName:  &lastname,
+	}
+
+		resp, httpRes, err := apiClient.CreateGuest(context.Background()).CreateGuestRequest(guestRequest).Execute()
 
 		require.Nil(t, err)
 		require.NotNil(t, resp)
@@ -48,9 +65,15 @@ func Test_openapi_DefaultAPIService(t *testing.T) {
 
 	t.Run("Test DefaultAPIService CreateJWT", func(t *testing.T) {
 
-		t.Skip("skip test")  // remove to run test
+		//t.Skip("skip test") // remove to run test
 
-		resp, httpRes, err := apiClient.DefaultAPI.CreateJWT(context.Background()).Execute()
+		authRequest := openapiclient.CreateJWTRequest{
+			Client:   "client_bb1d600f-f174-49dc-a34f-a79c77e237c8",
+			Email:    "zparekh@getsafepay.com",
+			Password: "azazazazaz",
+		}
+
+		resp, httpRes, err := apiClient.CreateJWT(context.Background()).CreateJWTRequest(authRequest).Execute()
 
 		require.Nil(t, err)
 		require.NotNil(t, resp)
@@ -60,9 +83,13 @@ func Test_openapi_DefaultAPIService(t *testing.T) {
 
 	t.Run("Test DefaultAPIService GenerateTimeBasedToken", func(t *testing.T) {
 
-		t.Skip("skip test")  // remove to run test
+		t.Skip("skip test") // remove to run test
+		context := context.WithValue(context.Background(), openapiclient.ContextAPIKeys, map[string]openapiclient.APIKey{
+			"merchantSecret": {Key: "342cca3dc755e17cc8192c40bc003a7e7cbc27cf51245f35a88600ae63a0f267"},
+		},
+		)
 
-		resp, httpRes, err := apiClient.DefaultAPI.GenerateTimeBasedToken(context.Background()).Execute()
+		resp, httpRes, err := apiClient.GenerateTimeBasedToken(context).Execute()
 
 		require.Nil(t, err)
 		require.NotNil(t, resp)
