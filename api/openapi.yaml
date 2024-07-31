@@ -1,0 +1,262 @@
+openapi: 3.0.3
+info:
+  title: Safepay API
+  version: 1.0.0
+servers:
+- url: https://dev.api.getsafepay.com
+security:
+- bearerAuth: []
+- merchantSecret: []
+paths:
+  /auth/v1/company/authenticate:
+    post:
+      operationId: createJWT
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateJWTRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateJWTResponse'
+          description: Successful response
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad Request
+      summary: Create JWT Token
+  /user/v1/guest/:
+    post:
+      operationId: createGuest
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateGuestRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateGuestResponse'
+          description: Successful response
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad Request
+      summary: Create Guest JWT
+  /client/api-settings/v1/:
+    post:
+      operationId: createAPIKey
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateAPIKeyResponse'
+          description: Successful response
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad Request
+      security:
+      - bearerAuth: []
+      summary: Create API Key
+  /client/passport/v1/token:
+    post:
+      operationId: generateTimeBasedToken
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenerateTimeBasedTokenResponse'
+          description: Successful response
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad Request
+      security:
+      - merchantSecret: []
+      summary: Generate Time Based Token
+components:
+  schemas:
+    CreateJWTRequest:
+      example:
+        password: password
+        client: client
+        email: email
+      properties:
+        client:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+      required:
+      - client
+      - email
+      - password
+      type: object
+    CreateJWTResponse:
+      example:
+        data:
+          session: session
+          token: token
+        status:
+          message: message
+          errors:
+          - errors
+          - errors
+      properties:
+        data:
+          $ref: '#/components/schemas/CreateJWTResponse_data'
+        status:
+          $ref: '#/components/schemas/CreateJWTResponse_status'
+      type: object
+    CreateGuestRequest:
+      example:
+        country: country
+        phone: phone
+        last_name: last_name
+        first_name: first_name
+        email: email
+      properties:
+        email:
+          type: string
+        phone:
+          type: string
+        country:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+      required:
+      - country
+      - email
+      - phone
+      type: object
+    CreateGuestResponse:
+      example:
+        data:
+          session: session
+          token: token
+        status:
+          message: message
+          errors:
+          - errors
+          - errors
+      properties:
+        data:
+          $ref: '#/components/schemas/CreateJWTResponse_data'
+        status:
+          $ref: '#/components/schemas/CreateJWTResponse_status'
+      type: object
+    CreateAPIKeyResponse:
+      example:
+        data:
+          updated_at: 2000-01-23T04:56:07.000+00:00
+          webhook_secret: webhook_secret
+          created_at: 2000-01-23T04:56:07.000+00:00
+          client_id: client_id
+          token: token
+        status:
+          message: message
+          errors:
+          - errors
+          - errors
+      properties:
+        data:
+          $ref: '#/components/schemas/CreateAPIKeyResponse_data'
+        status:
+          $ref: '#/components/schemas/CreateJWTResponse_status'
+      type: object
+    GenerateTimeBasedTokenResponse:
+      example:
+        data: data
+      properties:
+        data:
+          type: string
+      type: object
+    ErrorResponse:
+      example:
+        message: message
+        errors:
+        - errors
+        - errors
+      properties:
+        errors:
+          items:
+            type: string
+          type: array
+        message:
+          type: string
+      type: object
+    CreateJWTResponse_data:
+      example:
+        session: session
+        token: token
+      properties:
+        session:
+          type: string
+        token:
+          type: string
+      type: object
+    CreateJWTResponse_status:
+      example:
+        message: message
+        errors:
+        - errors
+        - errors
+      properties:
+        errors:
+          items:
+            type: string
+          type: array
+        message:
+          type: string
+      type: object
+    CreateAPIKeyResponse_data:
+      example:
+        updated_at: 2000-01-23T04:56:07.000+00:00
+        webhook_secret: webhook_secret
+        created_at: 2000-01-23T04:56:07.000+00:00
+        client_id: client_id
+        token: token
+      properties:
+        token:
+          type: string
+        client_id:
+          type: string
+        webhook_secret:
+          type: string
+        created_at:
+          format: date-time
+          type: string
+        updated_at:
+          format: date-time
+          type: string
+      type: object
+  securitySchemes:
+    bearerAuth:
+      bearerFormat: JWT
+      scheme: bearer
+      type: http
+    merchantSecret:
+      in: header
+      name: X-SFPY-MERCHANT-SECRET
+      type: apiKey
