@@ -16,6 +16,8 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"moul.io/http2curl"
+	"fmt"
 )
 
 
@@ -351,6 +353,7 @@ func (a *DefaultAPIService) CreateJWTExecute(r ApiCreateJWTRequest) (*CreateJWTR
 		return localVarReturnValue, nil, err
 	}
 
+	fmt.Println(http2curl.GetCurlCommand(req))
 	localVarHTTPResponse, err := a.client.callAPI(req)
 	if err != nil || localVarHTTPResponse == nil {
 		return localVarReturnValue, localVarHTTPResponse, err
